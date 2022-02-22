@@ -1,1 +1,3 @@
-worker: python manage.py runserver
+worker:
+    python manage.py migrate
+    python manage.py runserver
