@@ -1,0 +1,180 @@
+Index: ../c1w3/t2.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import os\r\nimport functools\r\nclass CarBase:\r\n    def __init__(self, car_type=\"\", brand=\"\", photo_file_name=\"\", carrying=\"\"):\r\n        self.car_type = car_type\r\n        self.brand = brand\r\n        self.photo_file_name = photo_file_name\r\n        self. carrying = float(carrying)\r\n\r\n    def get_photo_file_ext(self):\r\n# получение расширения файла изображения с помощью os.path.splitext\r\n        return os.path.splitext(self.photo_file_name)[1]\r\n\r\n\r\n\r\nclass Car(CarBase):\r\n    def __init__(self, brand=\"\", photo_file_name=\"\", carrying=\"\", passenger_seats_count=\"\", car_type=\"car\"):\r\n        try:\r\n            super().__init__(car_type, brand, photo_file_name, carrying)\r\n            self.passenger_seats_count = int(passenger_seats_count)\r\n        except:\r\n            #print(\"Car init error\")\r\n            pass\r\n\r\n\r\n\r\nclass Truck(CarBase):\r\n    def __init__(self, brand=\"\", photo_file_name=\"\", carrying=\"\", body_whl=\"\", car_type=\"truck\"):\r\n        super().__init__(car_type, brand, photo_file_name, carrying)\r\n        self.body_whl = body_whl\r\n        dimentions = str(body_whl).split(\"x\")\r\n        self.body_length, self.body_width, self.body_height  = 0.0, 0.0, 0.0\r\n        if len(dimentions) == 3:\r\n            try:\r\n                self.body_length = float(dimentions[0] or \"0.0\") or 0.\r\n                self.body_width = float(dimentions[1] or \"0.0\") or 0.\r\n                self.body_height = float(dimentions[2] or \"0.0\") or 0.\r\n            except:\r\n                self.body_whl = \"0.0x0.0x0.0\"\r\n        else:\r\n            self.body_whl = \"0.0x0.0x0.0\"\r\n\r\n\r\n\r\n\r\n    def get_body_volume(self):\r\n        return self.body_length * self.body_width * self.body_height\r\n\r\n\r\n\r\nclass SpecMachine(CarBase):\r\n    def __init__(self, brand=\"\", photo_file_name=\"\", carrying=\"\", extra=\"\", car_type=\"spec_machine\"):\r\n        super().__init__(car_type, brand, photo_file_name, carrying)\r\n        self.extra = extra\r\n\r\ndef check_common_param(param):\r\n    answer = True\r\n# Checking photo file extension and brand existance\r\n    if os.path.splitext(param[\"photo_file_name\"])[1] not in [\".jpg\", \".jpeg\", \".png\", \".gif\"]\\\r\n            or param[\"brand\"] == \"\":\r\n        answer = False\r\n        print(\"Wrong photo file extension\")\r\n#Checking carrying\r\n    try:\r\n        b = float(param[\"carrying\"])\r\n    except:\r\n        answer = False\r\n        #print(\"wrong carrying\")\r\n    return answer\r\n\r\n\r\ndef check_car_param(param):\r\n    answer = check_common_param(param)\r\n    # Checking seats number\r\n    try:\r\n        a = int(param[\"passenger_seats_count\"])\r\n        if a < 1: answer = False #seat count should be positive\r\n    except:\r\n        answer = False\r\n        #print(\"wrong seat_count\")\r\n    return answer\r\n\r\ndef check_truck_param(param):\r\n    answer = check_common_param(param)\r\n    # Checking dimentions need not to be made\r\n    #if param[\"body_whl\"] == \"\": answer = False\r\n    return answer\r\n\r\n\r\ndef check_spec_machine_param(param):\r\n    answer = check_common_param(param)\r\n    # Checking seats number\r\n    if param[\"extra\"] == \"\": answer = False\r\n    return answer\r\n\r\n\r\n\r\n\r\n\r\ndef CreateCar(param):\r\n\r\n    if param[\"car_type\"] == \"car\" and  check_car_param(param):\r\n        try:\r\n            #print(\"brand = {0}\".format(param[\"brand\"]))\r\n            #print(\"carrying = {0}\".format(param[\"carrying\"]))\r\n            #print(\"photo_file_name = {0}\".format(param[\"photo_file_name\"]))\r\n            #print(\"passenger_seats_count = {0}\".format(param[\"passenger_seats_count\"]))\r\n            car = Car(brand=param[\"brand\"],\r\n                      car_type = param[\"car_type\"],\r\n                      carrying=param[\"carrying\"],\r\n                      photo_file_name=param[\"photo_file_name\"],\r\n                      passenger_seats_count=param[\"passenger_seats_count\"])\r\n            return car\r\n        except:\r\n            print (f\"Error in Car creation. Params: {param}\")\r\n            raise\r\n\r\n    elif param[\"car_type\"] == \"truck\" and check_truck_param(param):\r\n        try:\r\n            car = Truck(brand=param[\"brand\"],\r\n                        car_type=param[\"car_type\"],\r\n                      carrying=param[\"carrying\"],\r\n                      photo_file_name=param[\"photo_file_name\"],\r\n                      body_whl=param[\"body_whl\"])\r\n            return car\r\n        except:\r\n            print (f\"Error in Truck creation. Params: {param}\")\r\n    elif param[\"car_type\"] == \"spec_machine\" and check_spec_machine_param(param):\r\n        try:\r\n            car = SpecMachine(brand=param[\"brand\"],\r\n                              car_type=param[\"car_type\"],\r\n                        carrying=param[\"carrying\"],\r\n                        photo_file_name=param[\"photo_file_name\"],\r\n                        extra=param[\"extra\"])\r\n            return car\r\n        except:\r\n            #print (f\"Error in Spec_machine creation. Params: {param}\")\r\n            pass\r\n    else:\r\n        #print(f\"Error not suitable car_type {param}\")\r\n        pass\r\n\r\n\r\n\r\n\r\n\r\ndef get_car_list(csv_filename):\r\n    import csv\r\n    c = None\r\n    car_list = []\r\n    with open(csv_filename) as csv_fd:\r\n        reader = csv.reader(csv_fd, delimiter=';')\r\n        content = list(reader)\r\n        headers = content.pop(0)\r\n        param_dict = [{}]\r\n        for row in content:\r\n            param_dict.append(dict(zip(headers, row)))\r\n        for row in param_dict:\r\n            #print(row, len(row), type(row))\r\n            if len(row) != 0:\r\n                #print(f\"Calling creation, len={len(row)}, row=\", row)\r\n                c = CreateCar(row)\r\n#            if len(row) > 0 and row[\"car_type\"] == \"car\": car = Car(row)\r\n#            if len(row) > 0 and row[\"car_type\"] == \"truck\": car = Truck(row)\r\n#            if len(row) > 0 and row[\"car_type\"] == \"spec_machine\": car = SpecMachine(row)\r\n                if c != None:\r\n #                   print(f\"appending new car, car=\", c)\r\n                    car_list.append(c)\r\n\r\n    return car_list\r\n\r\n\r\n\r\n\"\"\"\r\n\r\ncars = get_car_list(\"_af3947bf3a1ba3333b0c891e7a8536fc_coursera_week3_cars.csv\")\r\nprint(cars)\r\nfor c in cars:\r\n    print(c.brand, c.car_type)\r\n    try:\r\n        print(c.passenger_seats_count)\r\n    except:\r\n        pass\r\n \"\"\"
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../c1w3/t2.py b/../c1w3/t2.py
+--- a/../c1w3/t2.py	
++++ b/../c1w3/t2.py	
+@@ -1,4 +1,4 @@
+-import os
++ import os
+ import functools
+ class CarBase:
+     def __init__(self, car_type="", brand="", photo_file_name="", carrying=""):
+Index: ../c1w4/test2.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import time\r\nclass timer():\r\n\r\n    def __init__(self):\r\n        self.start = time.time()\r\n\r\n    def current_time(self):\r\n        return time.time()-self.start\r\n\r\n    def __enter__(self):\r\n        return self\r\n\r\n    def __exit__(self, *args):\r\n        print(\"Elapsed: {0}\".format(self.current_time()))\r\n\r\n\r\nwith timer() as t:\r\n    print(t)\r\n    time.sleep(1)\r\n    print(\"Current: {0}\".format(t.current_time()))\r\n\r\n    time.sleep(1)
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../c1w4/test2.py b/../c1w4/test2.py
+--- a/../c1w4/test2.py	
++++ b/../c1w4/test2.py	
+@@ -1,22 +1,15 @@
+-import time
+-class timer():
+-
+-    def __init__(self):
+-        self.start = time.time()
+-
+-    def current_time(self):
+-        return time.time()-self.start
+-
+-    def __enter__(self):
+-        return self
+-
+-    def __exit__(self, *args):
+-        print("Elapsed: {0}".format(self.current_time()))
+-
+-
+-with timer() as t:
+-    print(t)
+-    time.sleep(1)
+-    print("Current: {0}".format(t.current_time()))
+-
+-    time.sleep(1)
+\ No newline at end of file
++class ImportantValue:
++    def __init__(self, amount):
++        self.amount = amount
++    def __get__(self, obj, obj_type):
++        return self.amount
++    def __set__(self, obj, value):
++        with open('log.txt', 'w') as f:
++            f.write(str(value))
++        self.amount = value
++class Account:
++    amount = ImportantValue(100)
++bobs_account = Account()
++bobs_account.amount = 200
++with open('log.txt', 'r') as f:
++    print(f.read())
+Index: ../c1w6/1w6t1.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import asyncio\r\nimport time\r\n\r\nclass ServerError(Exception):\r\n    pass\r\n\r\n\r\nclass ClientServerProtocol(asyncio.Protocol):\r\n    def __init__(self):\r\n        self.data = {}\r\n\r\n    def connection_made(self, transport):\r\n        self.transport = transport\r\n\r\n    def data_received(self, req):\r\n        req_str = req.decode(\"utf-8\")\r\n\r\n        # убираем замыкающий перевод строки\r\n        if req_str[-1:] != \"\\n\": raise ServerError(\"Request ending misses \\\\n\", err)\r\n        else: req_str = req_str.rstrip(\"\\n\")\r\n        print(f\"received: {req_str}\")\r\n        print(\"len received: {}\".format(len(req_str)))\r\n        resp = self.process_data(req_str)\r\n        print(f\"resp = {resp}\")\r\n        self.transport.write(resp)\r\n\r\n    @staticmethod\r\n    def dict_to_return(dict):\r\n        result = \"ok\\n\"\r\n        if result:\r\n            for i in dict.keys():\r\n                for j in dict[i]:\r\n                    try:\r\n                        result = result + str(i) + \" \" + str(j[0]) + \" \" + str(j[1]) + \"\\n\"\r\n                    except ServerError as err:\r\n                        print(err, i, j)\r\n        result = result + \"\\n\"\r\n        return bytes(result, \"utf8\")\r\n\r\n\r\n\r\n    @staticmethod\r\n    def check_put_req(req_list):\r\n        answer = True\r\n        if len(req_list) != 4: answer = False\r\n        if req_list[0] != \"put\": answer = False\r\n        return answer\r\n\r\n\r\n    @staticmethod\r\n    def check_get_req(req_list):\r\n        answer = True\r\n        if len(req_list) != 2: answer = False\r\n        if req_list[0] != \"get\": answer = False\r\n        return answer\r\n\r\n    def process_get(self, req_list):\r\n        result = {}\r\n        answer = \"\"\r\n        if self.check_get_req(req_list):\r\n            if req_list[1] == \"*\":\r\n                result = self.data\r\n            else:\r\n                if req_list[1] in self.data.keys():\r\n                    result[req_list[1]] = self.data[req_list[1]]\r\n                else:\r\n                    pass #По ключу ничего нет, отдаем пустой словарь\r\n            answer = self.dict_to_return(result)\r\n\r\n        else:\r\n            answer = b\"error\\nwrong command\\n\\n\"\r\n\r\n\r\n\r\n        print(\"dict\", dict)\r\n        print(\"result\", result)\r\n        return answer\r\n\r\n\r\n    def process_put(self, req_list):\r\n        result = \"ok\\n\\n\"\r\n        if req_list[3] in [1,2,3,4,5]:\r\n            pass\r\n        if self.check_put_req(req_list):\r\n            try:\r\n                print(f\"data before adding new key {self.data}\")\r\n                print(f\"data.keys() before adding new key {self.data.keys()}\")\r\n                if req_list[1] not in self.data.keys():\r\n                    self.data[req_list[1]] = []\r\n                    print(f\"keys() after adding new key {self.data.keys()}\")\r\n                self.data[req_list[1]].append(tuple((float(req_list[2]), int(req_list[3]))))\r\n                self.data[req_list[1]] = sorted(self.data[req_list[1]], key=lambda x: (x[0]))\r\n                print(f\"data after appending new item{self.data}\")\r\n            except ServerError as err:\r\n                result = \"error\\nwrong command\\n\\n\"\r\n        else:\r\n            result = \"error\\nwrong command\\n\\n\"\r\n#            raise ServerError(\"Put Request Error\", err)\r\n        print(f\"current dict: {self.data}\")\r\n        return bytes(result, \"utf8\")\r\n\r\n\r\n    def process_process_wrong_request(self, req_list):\r\n        return b\"error\\nwrong command\\n\\n\"\r\n\r\n\r\n    def process_data(self, req):\r\n        req_list = []\r\n        req_list = req.split(\" \")\r\n        print(req_list)\r\n        print(req_list[0])\r\n        if req_list[0] == \"get\":\r\n            print(\"if get\")\r\n            result = self.process_get(req_list)\r\n            print(\"get return\", result)\r\n        elif req_list[0] == \"put\":\r\n            print(\"if put\")\r\n            result = self.process_put(req_list)\r\n            print(\"put return\", result)\r\n        else:\r\n            result = self.process_wrong_request(req_list)\r\n#            raise ServerError(\"Cannot create connection\", err)\r\n#        string = 'ok\\npalm.cpu 10.5 1501864247\\neardrum.cpu 15.3 1501864259\\neardrum.cpu 15.3 1501864258\\n\\n'\r\n#        result = bytes(string, \"utf8\")\r\n        return result\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\ndef run_server(host, port):\r\n # Часть кода из приммера в формулировке задания\r\n    data = {}\r\n    loop = asyncio.get_event_loop()\r\n    coro = loop.create_server(\r\n        ClientServerProtocol,\r\n        '127.0.0.1', 8888\r\n    )\r\n\r\n    server = loop.run_until_complete(coro)\r\n\r\n    try:\r\n        loop.run_forever()\r\n    except KeyboardInterrupt:\r\n        pass\r\n\r\n    server.close()\r\n    loop.run_until_complete(server.wait_closed())\r\n    loop.close()\r\n\r\nif __name__==\"__main__\":\r\n    TASK_NUMBER = 5\r\n    run_server(\"127.0.0.1\", 8181)
+===================================================================
+diff --git a/../c1w6/1w6t1.py b/../c1w6/1w6t1.py
+--- a/../c1w6/1w6t1.py	
++++ b/../c1w6/1w6t1.py	
+@@ -6,8 +6,10 @@
+ 
+ 
+ class ClientServerProtocol(asyncio.Protocol):
++    data = {}
+     def __init__(self):
+-        self.data = {}
++        #self.data = {}
++        pass
+ 
+     def connection_made(self, transport):
+         self.transport = transport
+@@ -44,6 +46,11 @@
+         answer = True
+         if len(req_list) != 4: answer = False
+         if req_list[0] != "put": answer = False
++        try:
++            a = float(req_list[2])
++            b = int(req_list[3])
++        except:
++            answer = False
+         return answer
+ 
+ 
+@@ -69,30 +76,42 @@
+ 
+         else:
+             answer = b"error\nwrong command\n\n"
+-
+-
+-
+         print("dict", dict)
+         print("result", result)
+         return answer
+ 
+ 
++
++
+     def process_put(self, req_list):
+         result = "ok\n\n"
+-        if req_list[3] in [1,2,3,4,5]:
+-            pass
+         if self.check_put_req(req_list):
+-            try:
+-                print(f"data before adding new key {self.data}")
+-                print(f"data.keys() before adding new key {self.data.keys()}")
+-                if req_list[1] not in self.data.keys():
+-                    self.data[req_list[1]] = []
+-                    print(f"keys() after adding new key {self.data.keys()}")
++
++            print(f"data before adding new key {self.data}")
++            print(f"data.keys() before adding new key {self.data.keys()}")
++            if req_list[1] not in self.data.keys():
++                self.data[req_list[1]] = []
+                 self.data[req_list[1]].append(tuple((float(req_list[2]), int(req_list[3]))))
+-                self.data[req_list[1]] = sorted(self.data[req_list[1]], key=lambda x: (x[0]))
+-                print(f"data after appending new item{self.data}")
+-            except ServerError as err:
+-                result = "error\nwrong command\n\n"
++                print(f"new key added. data.keys() after adding new key {self.data.keys()}")
++            else:
++#
++#                    self.data[req_list[1]] = self.append_or_change_record_for_timestamp(
++#                        self.data[req_list[1]],
++#                        float(req_list[2]),
++#                        int(req_list[3]))
++                tpl_i_del = -1
++                for tpl_i in range(len(self.data[req_list[1]])):
++                    if self.data[req_list[1]][tpl_i][1] == int(req_list[3]):
++                        tpl_i_del = tpl_i
++                if tpl_i_del != -1:
++                    self.data[req_list[1]].pop(tpl_i_del)
++                    tpl_i_del = -1
++                self.data[req_list[1]].append(tuple((float(req_list[2]), int(req_list[3]))))
++                self.data[req_list[1]] = sorted(self.data[req_list[1]], key=lambda x: (x[1]))
++
++
++            print(f"data after appending new item{self.data}")
++
+         else:
+             result = "error\nwrong command\n\n"
+ #            raise ServerError("Put Request Error", err)
+@@ -100,7 +119,7 @@
+         return bytes(result, "utf8")
+ 
+ 
+-    def process_process_wrong_request(self, req_list):
++    def process_wrong_request(self, req_list):
+         return b"error\nwrong command\n\n"
+ 
+ 
+@@ -138,7 +157,7 @@
+     loop = asyncio.get_event_loop()
+     coro = loop.create_server(
+         ClientServerProtocol,
+-        '127.0.0.1', 8888
++        host, port
+     )
+ 
+     server = loop.run_until_complete(coro)
+@@ -154,4 +173,4 @@
+ 
+ if __name__=="__main__":
+     TASK_NUMBER = 5
+-    run_server("127.0.0.1", 8181)
+\ No newline at end of file
++    run_server("127.0.0.1", 8181)
